@@ -54,10 +54,10 @@ useEffect(() => {
   const [finalEmail, setFinalEmail] = useState('');
 
   // Refs for smooth scrolling
-  const heroRef = useRef<HTMLElement>(null);
-  const howRef = useRef<HTMLElement>(null);
-  const faqRef = useRef<HTMLElement>(null);
-  const signupRef = useRef<HTMLElement>(null);
+ 
+const howRef = useRef<HTMLElement | null>(null);
+const faqRef = useRef<HTMLElement | null>(null);
+const signupRef = useRef<HTMLElement | null>(null);
 
   // Fetch real waitlist count from Supabase
   const fetchWaitlistCount = useCallback(async () => {
@@ -95,16 +95,16 @@ useEffect(() => {
     };
   }, [fetchWaitlistCount]);
 
-  const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
-    ref.current?.scrollIntoView({ behavior: 'smooth' });
-    setMobileMenuOpen(false);
-  };
 
-  const handleNavClick = (section: string) => {
-    if (section === 'how') scrollToSection(howRef);
-    else if (section === 'faq') scrollToSection(faqRef);
-    else if (section === 'signup') scrollToSection(signupRef);
-  };
+const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
+  ref.current?.scrollIntoView({ behavior: 'smooth' });
+};
+
+const handleNavClick = (section: string) => {
+  if (section === 'how') scrollToSection(howRef);
+  else if (section === 'faq') scrollToSection(faqRef);
+  else if (section === 'signup') scrollToSection(signupRef);
+};
 
   const highlightInput = (id: string) => {
     const el = document.getElementById(id);
@@ -288,16 +288,16 @@ const handleFinalSignup = async () => {
               </button>
             </div>
             <div className="mobile-menu-links">
-              <button onClick={() => handleMobileNavClick('how')} className="mobile-nav-link">
+              <button onClick={() => handleNavClick('how')} className="mobile-nav-link">
                 <span>01</span> How it works
               </button>
-              <button onClick={() => handleMobileNavClick('faq')} className="mobile-nav-link">
+              <button onClick={() => handleNavClick('faq')} className="mobile-nav-link">
                 <span>02</span> FAQ
               </button>
-              <button onClick={() => handleMobileNavClick('signup')} className="mobile-nav-link">
+              <button onClick={() => handleNavClick('signup')} className="mobile-nav-link">
                 <span>03</span> Routes
               </button>
-              <button onClick={() => handleMobileNavClick('signup')} className="mobile-nav-cta">
+              <button onClick={() => handleNavClick('signup')} className="mobile-nav-cta">
                 Join waitlist →
               </button>
             </div>
