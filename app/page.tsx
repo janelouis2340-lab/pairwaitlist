@@ -7,6 +7,60 @@ import Head from 'next/head';
 import { supabase } from '@/lib/supabaseClient';
 
 export default function Home() {
+// Countdown timer for launch date
+useEffect(() => {
+  // Set your launch date here (example: April 15, 2026)
+  const launchDate = new Date('April 15, 2026 00:00:00').getTime();
+  
+  const updateCountdown = () => {
+    const now = new Date().getTime();
+    const distance = launchDate - now;
+    
+    if (distance < 0) {
+      // Launch has passed
+      const daysElem = document.getElementById('cd-days');
+      const hoursElem = document.getElementById('cd-hours');
+      const minsElem = document.getElementById('cd-mins');
+      const secsElem = document.getElementById('cd-secs');
+      
+      if (daysElem) daysElem.innerText = '00';
+      if (hoursElem) hoursElem.innerText = '00';
+      if (minsElem) minsElem.innerText = '00';
+      if (secsElem) secsElem.innerText = '00';
+      
+      // Optionally change the label
+      const labelElem = document.querySelector('.countdown-label');
+      if (labelElem) labelElem.innerHTML = '🎉 Now Live! 🎉';
+      return;
+    }
+    
+    // Calculate time units
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+    // Update DOM elements
+    const daysElem = document.getElementById('cd-days');
+    const hoursElem = document.getElementById('cd-hours');
+    const minsElem = document.getElementById('cd-mins');
+    const secsElem = document.getElementById('cd-secs');
+    
+    if (daysElem) daysElem.innerText = days.toString().padStart(2, '0');
+    if (hoursElem) hoursElem.innerText = hours.toString().padStart(2, '0');
+    if (minsElem) minsElem.innerText = minutes.toString().padStart(2, '0');
+    if (secsElem) secsElem.innerText = seconds.toString().padStart(2, '0');
+  };
+  
+  // Update immediately
+  updateCountdown();
+  
+  // Update every second
+  const interval = setInterval(updateCountdown, 1000);
+  
+  // Cleanup interval on component unmount
+  return () => clearInterval(interval);
+}, []);
 
 
 // Add this test to your app/page.tsx temporarily
@@ -100,12 +154,15 @@ const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
   ref.current?.scrollIntoView({ behavior: 'smooth' });
 };
 
-const handleNavClick = (section: string) => {
+const handleNavClick = (section: string, closeMobileMenu = false) => {
   if (section === 'how') scrollToSection(howRef);
   else if (section === 'faq') scrollToSection(faqRef);
   else if (section === 'signup') scrollToSection(signupRef);
+  
+  if (closeMobileMenu) {
+    setMobileMenuOpen(false);
+  }
 };
-
   const highlightInput = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -247,10 +304,11 @@ const handleFinalSignup = async () => {
       </Head>
 
       <div className="app-container">
-        {/* ANNOUNCEMENT BANNER */}
-        <div className="banner">
-          🎁 Join the waitlist today and get <strong>25% off your first 3 trips</strong> — early access only.
-        </div>
+     {/* ANNOUNCEMENT BANNER */}
+<div className="banner">
+  🚀 Pair launches <strong>1st July 2025</strong> · Join the waitlist and get <strong>25% off your first 3 trips</strong>
+</div>
+        
 
         {/* NAV */}
         <nav className={`navbar ${mobileMenuOpen ? 'menu-open' : ''}`}>
@@ -287,20 +345,44 @@ const handleFinalSignup = async () => {
                 ✕
               </button>
             </div>
-            <div className="mobile-menu-links">
-              <button onClick={() => handleNavClick('how')} className="mobile-nav-link">
-                <span>01</span> How it works
-              </button>
-              <button onClick={() => handleNavClick('faq')} className="mobile-nav-link">
-                <span>02</span> FAQ
-              </button>
-              <button onClick={() => handleNavClick('signup')} className="mobile-nav-link">
-                <span>03</span> Routes
-              </button>
-              <button onClick={() => handleNavClick('signup')} className="mobile-nav-cta">
-                Join waitlist →
-              </button>
-            </div>
+       <div className="mobile-menu-links">
+  <button 
+    onClick={() => {
+      handleNavClick('how');
+      setMobileMenuOpen(false); // Close menu
+    }} 
+    className="mobile-nav-link"
+  >
+    <span>01</span> How it works
+  </button>
+  <button 
+    onClick={() => {
+      handleNavClick('faq');
+      setMobileMenuOpen(false); // Close menu
+    }} 
+    className="mobile-nav-link"
+  >
+    <span>02</span> FAQ
+  </button>
+  <button 
+    onClick={() => {
+      handleNavClick('signup');
+      setMobileMenuOpen(false); // Close menu
+    }} 
+    className="mobile-nav-link"
+  >
+    <span>03</span> Routes
+  </button>
+  <button 
+    onClick={() => {
+      handleNavClick('signup');
+      setMobileMenuOpen(false); // Close menu
+    }} 
+    className="mobile-nav-cta"
+  >
+    Join waitlist →
+  </button>
+</div>
             <div className="mobile-menu-footer">
               <p>Lagos, Nigeria</p>
               <div className="mobile-social">
@@ -328,6 +410,28 @@ const handleFinalSignup = async () => {
               </div>
             </div>
 
+{/* COUNTDOWN TIMER - Modern Design */}
+<div className="countdown-strip">
+  <div className="countdown-label">🚀 Launching in</div>
+  <div className="countdown-wrapper">
+    <div className="countdown-item">
+      <div className="countdown-number" id="cd-days">00</div>
+      <div className="countdown-unit">DAYS</div>
+    </div>
+    <div className="countdown-item">
+      <div className="countdown-number" id="cd-hours">00</div>
+      <div className="countdown-unit">HRS</div>
+    </div>
+    <div className="countdown-item">
+      <div className="countdown-number" id="cd-mins">00</div>
+      <div className="countdown-unit">MINS</div>
+    </div>
+    <div className="countdown-item">
+      <div className="countdown-number" id="cd-secs">00</div>
+      <div className="countdown-unit">SECS</div>
+    </div>
+  </div>
+</div>
             <div className="signup-box">
               <span className="signup-label">Join the waitlist — claim your 25% early access discount</span>
 
@@ -647,7 +751,7 @@ const handleFinalSignup = async () => {
                     <th>Feature</th>
                     <th className="pair-col">Pair ✦</th>
                     <th>Danfo / BRT</th>
-                    <th>Uber / Bolt</th>
+                    <th>Taxi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -747,6 +851,99 @@ const handleFinalSignup = async () => {
         </div>
 
         <style jsx>{`
+/* Countdown Timer - EXACT DESIGN WITH BACKGROUNDS */
+:global(.countdown-strip) {
+  background: transparent;
+  padding: 20px 0;
+  margin-top: 20px;
+  text-align: center;
+}
+
+:global(.countdown-label) {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--gray);
+  margin-bottom: 16px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+:global(.countdown-wrapper) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+:global(.countdown-item) {
+  text-align: center;
+  background: var(--black);
+  border-radius: 16px;
+  padding: 16px 20px;
+  min-width: 90px;
+}
+
+:global(.countdown-number) {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+:global(.countdown-unit) {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  :global(.countdown-wrapper) {
+    gap: 12px;
+  }
+  
+  :global(.countdown-item) {
+    padding: 12px 16px;
+    min-width: 70px;
+    border-radius: 14px;
+  }
+  
+  :global(.countdown-number) {
+    font-size: 28px;
+    margin-bottom: 6px;
+  }
+  
+  :global(.countdown-unit) {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 480px) {
+  :global(.countdown-wrapper) {
+    gap: 8px;
+  }
+  
+  :global(.countdown-item) {
+    padding: 10px 12px;
+    min-width: 60px;
+    border-radius: 12px;
+  }
+  
+  :global(.countdown-number) {
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+  
+  :global(.countdown-unit) {
+    font-size: 8px;
+  }
+}
+        
           :global(:root) {
             --black: #0a0a0a;
             --white: #f5f3ee;
