@@ -107,6 +107,16 @@ useEffect(() => {
   });
   const [finalEmail, setFinalEmail] = useState('');
 
+
+  // ADD THIS LINE HERE - Right after your other state declarations
+  const [submittedUser, setSubmittedUser] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    position: 0
+  });
+
+
   // Refs for smooth scrolling
  
 const howRef = useRef<HTMLElement | null>(null);
@@ -205,6 +215,22 @@ const handleSignup = async () => {
     if (error) {
       // Handle duplicate email error (code 23505)
       if (error.code === '23505') {
+        // Fetch existing user's name and position from database
+        const { data: existingUser } = await supabase
+          .from('waitlist')
+          .select('first_name, last_name, waitlist_position')
+          .eq('email', email.toLowerCase().trim())
+          .single();
+        
+        if (existingUser) {
+          setSubmittedUser({
+            firstName: existingUser.first_name,
+            lastName: existingUser.last_name,
+            email: email,
+            position: existingUser.waitlist_position
+          });
+        }
+        
         setSubmitError('This email is already on our waitlist! 🎉');
         // Optionally highlight the email field
         highlightInput('emailInput');
@@ -218,6 +244,16 @@ const handleSignup = async () => {
     }
     
     console.log('Insert successful:', data);
+    
+    // Save the submitted user data for the modal
+    setSubmittedUser({
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      position: data?.[0]?.waitlist_position || waitlistCount + 1
+    });
+    
+    // Show success modal
     showSuccess();
     
     // Reset form on success
@@ -236,7 +272,6 @@ const handleSignup = async () => {
     setIsSubmitting(false);
   }
 };
-
 
 const handleFinalSignup = async () => {
   if (!finalEmail || !finalEmail.includes('@')) {
@@ -396,227 +431,231 @@ const handleFinalSignup = async () => {
         </div>
 
         {/* HERO */}
-        <section className="hero" ref={signupRef}>
-          <div className="hero-left">
-            <div className="hero-tag">Now accepting early access</div>
-            <h1>Commute across Lagos <em>without</em> the chaos.</h1>
-            <p className="hero-sub">Why pay half your monthly salary for a one-way taxi ride? Pair gets you there comfortably — shared, safe, and predictable — at a fraction of the cost.</p>
-            <p className="hero-sub" style={{ marginTop: '-20px', fontSize: '15px' }}>No danfo scramble. No surge pricing. No roadside waiting. Join your ride from a restaurant, café, or mall near you — not a bus stop — track your driver in real time, and arrive without the stress.</p>
+{/* HERO */}
+<section className="hero" ref={signupRef}>
+  
+  {/* Hero Left Content - Visible on both desktop and mobile */}
+  <div className="hero-left">
+    <div className="hero-tag">Now accepting early access</div>
+    <h1>Commute across Lagos <em>without</em> the chaos.</h1>
+    <p className="hero-sub">Why pay half your monthly salary for a one-way taxi ride? Pair gets you there comfortably . In an air-conditioned Minivan with six passengers. Pair is safe and predictable , at a fraction of the cost.</p>
+    <p className="hero-sub" style={{ marginTop: '-20px', fontSize: '15px' }}>No need scrambling for danfo . No surge pricing. No roadside waiting. Join your ride from a restaurant, café, or mall near you not a bus stop. Track your driver in real time, and arrive without the stress.</p>
 
-            <div className="incentive-badge">
-              <div className="incentive-icon">🎁</div>
-              <div className="incentive-text">
-                <span className="incentive-headline">25% off your first 6 trips</span>
-                <span className="incentive-sub">For waitlist members only · Limited time offer</span>
-              </div>
-            </div>
-
-{/* COUNTDOWN TIMER - Modern Design */}
-<div className="countdown-strip">
-  <div className="countdown-label">🚀 Launching in</div>
-  <div className="countdown-wrapper">
-    <div className="countdown-item">
-      <div className="countdown-number" id="cd-days">00</div>
-      <div className="countdown-unit">DAYS</div>
-    </div>
-    <div className="countdown-item">
-      <div className="countdown-number" id="cd-hours">00</div>
-      <div className="countdown-unit">HRS</div>
-    </div>
-    <div className="countdown-item">
-      <div className="countdown-number" id="cd-mins">00</div>
-      <div className="countdown-unit">MINS</div>
-    </div>
-    <div className="countdown-item">
-      <div className="countdown-number" id="cd-secs">00</div>
-      <div className="countdown-unit">SECS</div>
+    <div className="incentive-badge">
+      <div className="incentive-icon">🎁</div>
+      <div className="incentive-text">
+        <span className="incentive-headline">25% off your first 6 trips</span>
+        <span className="incentive-sub">For waitlist members only · Limited time offer</span>
+      </div>
     </div>
   </div>
-</div>
-            <div className="signup-box">
-              <span className="signup-label">Join the waitlist — claim your 25% early access discount</span>
 
-                {/* Error message display */}
-              {submitError && (
-                <div className="error-message" style={{ color:'red'}}>
-                  ⚠️ {submitError}
-                </div>
-              )}
-
-              <div className="name-row">
-                <input
-                  id="firstName"
-                  className="text-input"
-                  type="text"
-                  placeholder="First name"
-                  value={signupForm.firstName}
-                  onChange={(e) => setSignupForm(prev => ({ ...prev, firstName: e.target.value }))}
-                  disabled={isSubmitting}
-                />
-                <input
-                  id="lastName"
-                  className="text-input"
-                  type="text"
-                  placeholder="Last name"
-                  value={signupForm.lastName}
-                  onChange={(e) => setSignupForm(prev => ({ ...prev, lastName: e.target.value }))}
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <select
-                id="routeSelect"
-                className="select-input"
-                value={signupForm.route}
-                onChange={(e) => setSignupForm(prev => ({ ...prev, route: e.target.value }))}
-                disabled={isSubmitting}
-              >
-                <option value="" disabled>Select your route</option>
-                <option value="ikeja-vi">Ikeja → Victoria Island</option>
-                <option value="ajah-vi">Ajah → Victoria Island</option>
-                <option value="ikeja-cms">Ikeja → CMS / Marina</option>
-                <option value="yaba-lekki">Yaba → Lekki Phase 1</option>
-                <option value="surulere-lekki">Surulere → Lekki Phase 1</option>
-              </select>
-
-              <input
-                id="emailInput"
-                className="text-input"
-                type="email"
-                placeholder="Email address"
-                style={{ marginBottom: '12px', width: '100%' }}
-                value={signupForm.email}
-                onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
-                disabled={isSubmitting}
-              />
-
-              <div className="phone-input-wrap">
-                <input className="country-code" value="+234" readOnly />
-                <input
-                  id="phoneInput"
-                  className="phone-input"
-                  type="tel"
-                  placeholder="Enter Your Whatsapp Number"
-                  value={signupForm.phone}
-                  onChange={(e) => setSignupForm(prev => ({ ...prev, phone: e.target.value }))}
-                  disabled={isSubmitting}
-                />
-              </div>
-              <div className="perks-row">
-                <span className="perk-chip">✦ 25% off first 6 trips</span>
-                <span className="perk-chip">✦ Priority boarding</span>
-                <span className="perk-chip">✦ Early access</span>
-              </div>
-
-         <button className="submit-btn" onClick={handleSignup} disabled={isSubmitting}>
-                {isSubmitting ? 'Joining...' : 'Reserve my spot →'}
-              </button>
-              <p className="signup-note">A confirmation will be sent to your email. Your phone number helps us notify you on WhatsApp at launch. No spam, ever.</p>
-            </div>
-
-            <div className="counter-strip">
-              <div className="counter-left">
-                <div className="avatars">
-                  <div className="avatar">A</div>
-                  <div className="avatar">K</div>
-                  <div className="avatar">T</div>
-                </div>
-                <span className="counter-text"><strong>Lagosians</strong> already on the waitlist</span>
-              </div>
-              <div className="counter-right">49{waitlistCount.toLocaleString()}</div>
-            </div>
+  {/* Hero Right - Route Cards (will appear second on mobile) */}
+  <div className="hero-right">
+    <div className="route-card">
+      <div className="live-badge">
+        <div className="live-dot"></div> Pilot routes
+      </div>
+      <div className="card-label">Available corridors · Waitlist price shown</div>
+      <div className="routes-list">
+        <div className="route-item">
+          <div className="route-dot"></div>
+          <div className="route-info">
+            <div className="route-name">Ikeja → Victoria Island</div>
+            <div className="taxi-compare">Taxis charge est. ₦13,000–₦15,000 on this route. They don't guarantee A/C. Pair does.</div>
           </div>
-
-        <div className="hero-right">
-  <div className="route-card">
-    <div className="live-badge"><div className="live-dot"></div> Pilot routes</div>
-    <div className="card-label">Available corridors · Waitlist price shown</div>
-    <div className="routes-list">
-
-      <div className="route-item">
-        <div className="route-dot"></div>
-        <div className="route-info">
-          <div className="route-name">Ikeja → Victoria Island</div>
-          <div className="route-meta">~30 km · Departures every 45 mins</div>
-          <div className="taxi-compare">Taxis charge est. ₦13,000–₦15,000 on this route. They don't guarantee A/C. Pair does.</div>
+          <div className="route-price-wrap">
+            <span className="route-price">₦4,050</span>
+            <span className="route-price-discount">₦5,400</span>
+          </div>
         </div>
-        <div className="route-price-wrap">
-          <span className="route-price">₦4,050</span>
-          <span className="route-price-discount">₦5,400</span>
+
+        <div className="route-item">
+          <div className="route-dot"></div>
+          <div className="route-info">
+            <div className="route-name">Ajah → Victoria Island</div>
+            <div className="taxi-compare">Taxis charge est. ₦13,000–₦15,000 on this route. They don't guarantee A/C. Pair does.</div>
+          </div>
+          <div className="route-price-wrap">
+            <span className="route-price">₦3,750</span>
+            <span className="route-price-discount">₦5,000</span>
+          </div>
+        </div>
+
+        <div className="route-item">
+          <div className="route-dot"></div>
+          <div className="route-info">
+            <div className="route-name">Ikeja → CMS / Marina</div>
+            <div className="taxi-compare">Taxis charge est. ₦11,000–₦13,000 on this route. They don't guarantee A/C. Pair does.</div>
+          </div>
+          <div className="route-price-wrap">
+            <span className="route-price">₦3,375</span>
+            <span className="route-price-discount">₦4,500</span>
+          </div>
+        </div>
+
+        <div className="route-item">
+          <div className="route-dot"></div>
+          <div className="route-info">
+            <div className="route-name">Yaba → Lekki Phase 1</div>
+            <div className="taxi-compare">Taxis charge est. ₦10,000 on this route. They don't guarantee A/C. Pair does.</div>
+          </div>
+          <div className="route-price-wrap">
+            <span className="route-price">₦2,500</span>
+            <span className="route-price-discount">₦3,000</span>
+          </div>
+        </div>
+
+        <div className="route-item">
+          <div className="route-dot"></div>
+          <div className="route-info">
+            <div className="route-name">Surulere → Lekki Phase 1</div>
+            <div className="taxi-compare">Taxis charge est. ₦10,500 on this route. They don't guarantee A/C. Pair does.</div>
+          </div>
+          <div className="route-price-wrap">
+            <span className="route-price">₦2,800</span>
+            <span className="route-price-discount">₦3,500</span>
+          </div>
         </div>
       </div>
-
-      <div className="route-item">
-        <div className="route-dot"></div>
-        <div className="route-info">
-          <div className="route-name">Ajah → Victoria Island</div>
-          <div className="route-meta">~28 km · Departures every 45 mins</div>
-          <div className="taxi-compare">Taxis charge est. ₦13,000–₦15,000 on this route. They don't guarantee A/C. Pair does.</div>
+      <div className="taxi-note">Waitlist price shown · Standard fare applies after first 6 trips · Taxi estimates based on typical peak-hour fares</div>
+      <div className="stats-row">
+        <div className="stat-box">
+          <div className="stat-num">6</div>
+          <div className="stat-label">Seats per ride</div>
         </div>
-        <div className="route-price-wrap">
-          <span className="route-price">₦3,750</span>
-          <span className="route-price-discount">₦5,000</span>
+        <div className="stat-box">
+          <div className="stat-num">AC</div>
+          <div className="stat-label">Every vehicle</div>
         </div>
-      </div>
-
-      <div className="route-item">
-        <div className="route-dot"></div>
-        <div className="route-info">
-          <div className="route-name">Ikeja → CMS / Marina</div>
-          <div className="route-meta">~25 km · Departures every 45 mins</div>
-          <div className="taxi-compare">Taxis charge est. ₦11,000–₦13,000 on this route. They don't guarantee A/C. Pair does.</div>
+        <div className="stat-box">
+          <div className="stat-num">0</div>
+          <div className="stat-label">Surge pricing</div>
         </div>
-        <div className="route-price-wrap">
-          <span className="route-price">₦3,375</span>
-          <span className="route-price-discount">₦4,500</span>
-        </div>
-      </div>
-
-      <div className="route-item">
-        <div className="route-dot"></div>
-        <div className="route-info">
-          <div className="route-name">Yaba → Lekki Phase 1</div>
-          <div className="route-meta">~20 km · Departures every 45 mins</div>
-          <div className="taxi-compare">Taxis charge est. ₦10,000 on this route. They don't guarantee A/C. Pair does.</div>
-        </div>
-        <div className="route-price-wrap">
-          <span className="route-price">₦2,500</span>
-          <span className="route-price-discount">₦3,000</span>
-        </div>
-      </div>
-
-      <div className="route-item">
-        <div className="route-dot"></div>
-        <div className="route-info">
-          <div className="route-name">Surulere → Lekki Phase 1</div>
-          <div className="route-meta">~22 km · Departures every 45 mins</div>
-          <div className="taxi-compare">Taxis charge est. ₦10,500 on this route. They don't guarantee A/C. Pair does.</div>
-        </div>
-        <div className="route-price-wrap">
-          <span className="route-price">₦2,800</span>
-          <span className="route-price-discount">₦3,500</span>
-        </div>
-      </div>
-
-    </div>
-    <div className="taxi-note">Waitlist price shown · Standard fare applies after first 6 trips · Taxi estimates based on typical peak-hour fares</div>
-    <div className="stats-row">
-      <div className="stat-box">
-        <div className="stat-num">6</div>
-        <div className="stat-label">Seats per ride</div>
-      </div>
-      <div className="stat-box">
-        <div className="stat-num">AC</div>
-        <div className="stat-label">Every vehicle</div>
-      </div>
-      <div className="stat-box">
-        <div className="stat-num">0</div>
-        <div className="stat-label">Surge pricing</div>
       </div>
     </div>
   </div>
-</div>
-        </section>
+
+  {/* Countdown and Signup Form (will appear third on mobile) */}
+  <div className="hero-form-section">
+    {/* COUNTDOWN TIMER */}
+    <div className="countdown-strip">
+      <div className="countdown-label">🚀 Launching in</div>
+      <div className="countdown-wrapper">
+        <div className="countdown-item">
+          <div className="countdown-number" id="cd-days">00</div>
+          <div className="countdown-unit">DAYS</div>
+        </div>
+        <div className="countdown-item">
+          <div className="countdown-number" id="cd-hours">00</div>
+          <div className="countdown-unit">HRS</div>
+        </div>
+        <div className="countdown-item">
+          <div className="countdown-number" id="cd-mins">00</div>
+          <div className="countdown-unit">MINS</div>
+        </div>
+        <div className="countdown-item">
+          <div className="countdown-number" id="cd-secs">00</div>
+          <div className="countdown-unit">SECS</div>
+        </div>
+      </div>
+    </div>
+
+    <div className="signup-box">
+      <span className="signup-label">Join the waitlist — claim your 25% early access discount</span>
+
+      {/* Error message display */}
+      {submitError && (
+        <div className="error-message" style={{ color:'red'}}>
+          ⚠️ {submitError}
+        </div>
+      )}
+
+      <div className="name-row">
+        <input
+          id="firstName"
+          className="text-input"
+          type="text"
+          placeholder="First name"
+          value={signupForm.firstName}
+          onChange={(e) => setSignupForm(prev => ({ ...prev, firstName: e.target.value }))}
+          disabled={isSubmitting}
+        />
+        <input
+          id="lastName"
+          className="text-input"
+          type="text"
+          placeholder="Last name"
+          value={signupForm.lastName}
+          onChange={(e) => setSignupForm(prev => ({ ...prev, lastName: e.target.value }))}
+          disabled={isSubmitting}
+        />
+      </div>
+
+      <select
+        id="routeSelect"
+        className="select-input"
+        value={signupForm.route}
+        onChange={(e) => setSignupForm(prev => ({ ...prev, route: e.target.value }))}
+        disabled={isSubmitting}
+      >
+        <option value="" disabled>Select your route</option>
+        <option value="ikeja-vi">Ikeja → Victoria Island</option>
+        <option value="ajah-vi">Ajah → Victoria Island</option>
+        <option value="ikeja-cms">Ikeja → CMS / Marina</option>
+        <option value="yaba-lekki">Yaba → Lekki Phase 1</option>
+        <option value="surulere-lekki">Surulere → Lekki Phase 1</option>
+      </select>
+
+      <input
+        id="emailInput"
+        className="text-input"
+        type="email"
+        placeholder="Email address"
+        style={{ marginBottom: '12px', width: '100%' }}
+        value={signupForm.email}
+        onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
+        disabled={isSubmitting}
+      />
+
+      <div className="phone-input-wrap">
+ 
+        <input
+          id="phoneInput"
+          className="phone-input"
+          type="tel"
+          placeholder="Enter Your Whatsapp Number"
+          value={signupForm.phone}
+          onChange={(e) => setSignupForm(prev => ({ ...prev, phone: e.target.value }))}
+          disabled={isSubmitting}
+        />
+      </div>
+      
+      <div className="perks-row">
+        <span className="perk-chip">✦ 25% off first 6 trips</span>
+        <span className="perk-chip">✦ Priority boarding</span>
+        <span className="perk-chip">✦ Early access</span>
+      </div>
+
+      <button className="submit-btn" onClick={handleSignup} disabled={isSubmitting}>
+        {isSubmitting ? 'Joining...' : 'Reserve my spot →'}
+      </button>
+      <p className="signup-note">A confirmation will be sent to you on WhatsApp at launch with your promo code. No spam, ever.</p>
+    </div>
+
+    <div className="counter-strip">
+      <div className="counter-left">
+        <div className="avatars">
+          <div className="avatar">A</div>
+          <div className="avatar">K</div>
+          <div className="avatar">T</div>
+        </div>
+        <span className="counter-text"><strong>Lagosians</strong> already on the waitlist</span>
+      </div>
+      <div className="counter-right">49{waitlistCount.toLocaleString()}</div>
+    </div>
+  </div>
+</section>
 
         {/* HOW IT WORKS */}
         <section className="section" ref={howRef}>
@@ -815,7 +854,7 @@ const handleFinalSignup = async () => {
           {[
             { q: "Is Pair a bus?", a: "Pair is not a taxi, nor a bus. Pair is a minivan with six passengers — each with a guaranteed seat — making different stops along the same route. Think of it as a smarter, safer, more comfortable way to share a journey with people heading in the same direction as you." },
             { q: "With six passengers in a minivan, won't that slow down the trip?", a: "No. Our trips are carefully curated to ensure drivers do not make too many stops. Each passenger will spend less than 30 seconds alighting from the vehicle — keeping the journey smooth and predictable for everyone on board." },
-            { q: "How do I get my 25% discount on the first 3 trips?", a: "Simply join the waitlist by verifying your WhatsApp number on this page. When Pair launches and you take your first trip, your discount is automatically applied — no code needed. The 25% reduction applies to your first three trips on any route." },
+            { q: "How do I get my 25% discount on the first 6 trips?", a: "Simply join the waitlist by verifying your WhatsApp number on this page. When Pair launches and you take your first trip, your discount is automatically applied — no code needed. The 25% reduction applies to your first three trips on any route." },
             { q: "What if I miss my scheduled departure?", a: "No stress. The Pair app automatically routes you to the next available departure on your corridor. You'll never be stranded — just board the next vehicle. Departures run throughout the day, not just at peak commute hours." },
             { q: "How do I pay for my ride?", a: "All payments are made in advance through the Pair app using card, bank transfer, or mobile wallets like OPay and PalmPay. There's no cash handling on board, which keeps transactions clean and transparent for everyone." },
             { q: "Is it safe? How do you prevent criminals from boarding?", a: "Every Pair passenger goes through facial recognition verification before they can book a ride. This creates a closed, verified community of co-passengers — dramatically reducing the risk that plagues danfo and unregulated transport. Every trip is tracked in real time and your emergency contact can monitor your journey live." },
@@ -861,31 +900,32 @@ const handleFinalSignup = async () => {
         </footer>
 
         {/* SUCCESS MODAL */}
-        <div className={`modal-overlay ${modalOpen ? 'active' : ''}`}>
-          <div className="modal">
-            <div className="modal-icon">🎉</div>
-            <h3>You're on the list.</h3>
-            <p>Check your inbox — a confirmation is on its way. Your 25% discount is locked in from today.</p>
+      {/* SUCCESS MODAL */}
+<div className={`modal-overlay ${modalOpen ? 'active' : ''}`}>
+  <div className="modal">
+    <div className="modal-icon">🎉</div>
+    <h3>Thank you, {submittedUser.firstName || 'Lagosian'}!</h3>
+    <p>for joining the Pair waiting list. You will receive your Pair Early Access promo code on WhatsApp shortly. This code will be usable when Pair launches on July 1.</p>
 
-            <div className="modal-offer">
-              <div className="modal-offer-headline">25% off × 6 trips</div>
-              <div className="modal-offer-sub">Applied automatically on your first three rides</div>
-            </div>
+    <div className="modal-offer">
+      <div className="modal-offer-headline">25% off × 6 trips</div>
+      <div className="modal-offer-sub">Applied automatically on your first 6 rides</div>
+    </div>
 
-            <div className="position-badge">
-              <div className="position-label">Your waitlist position</div>
-              <div>#49{waitlistCount.toLocaleString()}</div>
-            </div>
+    <div className="position-badge">
+      <div className="position-label">Your waitlist position</div>
+      <div>#{49 + waitlistCount.toLocaleString()}</div>
+    </div>
 
-            <p className="share-nudge">Move up the list — share with friends who commute on your route:</p>
+    <p className="share-nudge">Move up the list — share with friends who commute on your route:</p>
 
-            <button className="share-btn" onClick={shareWhatsApp}>
-              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              Share on WhatsApp & move up the list
-            </button>
-            <button className="close-modal" onClick={closeModal}>I'll stay at my position for now</button>
-          </div>
-        </div>
+    <button className="share-btn" onClick={shareWhatsApp}>
+      <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Share on WhatsApp & move up the list
+    </button>
+    <button className="close-modal" onClick={closeModal}>Close</button>
+  </div>
+</div>
 
         <style jsx>{`
 
@@ -2487,6 +2527,56 @@ const handleFinalSignup = async () => {
             :global(.hero) { padding: 140px 20px 40px; }
             :global(.steps-grid) { grid-template-columns: repeat(2, 1fr); }
           }
+/* Desktop: Keep original grid layout */
+:global(.hero) {
+  min-height: 100vh;
+  padding: 160px 40px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+:global(.hero-form-section) {
+  grid-column: 1 / -1;
+  margin-top: 40px;
+}
+
+/* Mobile: Reorder sections */
+@media (max-width: 768px) {
+  :global(.hero) {
+    display: flex;
+    flex-direction: column;
+    padding: 130px 20px 60px;
+    gap: 32px;
+  }
+  
+  /* Order 1: Hero left content (tag, heading, paragraphs, incentive badge) */
+  :global(.hero-left) {
+    order: 1;
+  }
+  
+  /* Order 2: Route cards (hero-right) */
+  :global(.hero-right) {
+    order: 2;
+  }
+  
+  /* Order 3: Countdown timer and signup form */
+  :global(.hero-form-section) {
+    order: 3;
+    margin-top: 0;
+  }
+}
+
+/* For tablet landscape */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :global(.hero) {
+    gap: 40px;
+  }
+}
+          
         `}</style>
       </div>
     </>
