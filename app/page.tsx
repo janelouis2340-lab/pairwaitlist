@@ -10,7 +10,7 @@ export default function Home() {
 // Countdown timer for launch date
 useEffect(() => {
   // Set your launch date here (example: April 15, 2026)
-  const launchDate = new Date('April 15, 2026 00:00:00').getTime();
+  const launchDate = new Date('July 1, 2026 00:00:00').getTime();
   
   const updateCountdown = () => {
     const now = new Date().getTime();
@@ -181,6 +181,7 @@ const handleSignup = async () => {
   if (!lastName) { highlightInput('lastName'); return; }
   if (!route) { highlightInput('routeSelect'); return; }
   if (!email || !email.includes('@')) { highlightInput('emailInput'); return; }
+  if (!phone) { highlightInput('phoneInput'); return; }
   
   setIsSubmitting(true);
   setSubmitError(null);
@@ -306,7 +307,7 @@ const handleFinalSignup = async () => {
       <div className="app-container">
      {/* ANNOUNCEMENT BANNER */}
 <div className="banner">
-  🚀 Pair launches <strong>1st July 2025</strong> · Join the waitlist and get <strong>25% off your first 3 trips</strong>
+  🚀 Pair launches <strong>1st July 2025</strong> · Join the waitlist and get <strong>25% off your first 6 trips</strong>
 </div>
         
 
@@ -405,7 +406,7 @@ const handleFinalSignup = async () => {
             <div className="incentive-badge">
               <div className="incentive-icon">🎁</div>
               <div className="incentive-text">
-                <span className="incentive-headline">25% off your first 3 trips</span>
+                <span className="incentive-headline">25% off your first 6 trips</span>
                 <span className="incentive-sub">For waitlist members only · Limited time offer</span>
               </div>
             </div>
@@ -474,6 +475,8 @@ const handleFinalSignup = async () => {
                 <option value="ikeja-vi">Ikeja → Victoria Island</option>
                 <option value="ajah-vi">Ajah → Victoria Island</option>
                 <option value="ikeja-cms">Ikeja → CMS / Marina</option>
+                <option value="yaba-lekki">Yaba → Lekki Phase 1</option>
+                <option value="surulere-lekki">Surulere → Lekki Phase 1</option>
               </select>
 
               <input
@@ -493,14 +496,14 @@ const handleFinalSignup = async () => {
                   id="phoneInput"
                   className="phone-input"
                   type="tel"
-                  placeholder="080X XXX XXXX (optional)"
+                  placeholder="Enter Your Whatsapp Number"
                   value={signupForm.phone}
                   onChange={(e) => setSignupForm(prev => ({ ...prev, phone: e.target.value }))}
                   disabled={isSubmitting}
                 />
               </div>
               <div className="perks-row">
-                <span className="perk-chip">✦ 25% off first 3 trips</span>
+                <span className="perk-chip">✦ 25% off first 6 trips</span>
                 <span className="perk-chip">✦ Priority boarding</span>
                 <span className="perk-chip">✦ Early access</span>
               </div>
@@ -520,65 +523,99 @@ const handleFinalSignup = async () => {
                 </div>
                 <span className="counter-text"><strong>Lagosians</strong> already on the waitlist</span>
               </div>
-              <div className="counter-right">{waitlistCount.toLocaleString()}</div>
+              <div className="counter-right">49{waitlistCount.toLocaleString()}</div>
             </div>
           </div>
 
-          <div className="hero-right">
-            <div className="route-card">
-              <div className="live-badge"><div className="live-dot"></div> Pilot routes</div>
-              <div className="card-label">Available corridors</div>
-              <div className="routes-list">
-                <div className="route-item">
-                  <div className="route-dot"></div>
-                  <div className="route-info">
-                    <div className="route-name">Ikeja → Victoria Island</div>
-                    <div className="route-meta">~30 km · Departures every 45 mins</div>
-                  </div>
-                  <div className="route-price-wrap">
-                    <span className="route-price">₦4,050</span>
-                    <span className="route-price-discount">₦5,400</span>
-                  </div>
-                </div>
-                <div className="route-item">
-                  <div className="route-dot"></div>
-                  <div className="route-info">
-                    <div className="route-name">Ajah → Victoria Island</div>
-                    <div className="route-meta">~28 km · Departures every 45 mins</div>
-                  </div>
-                  <div className="route-price-wrap">
-                    <span className="route-price">₦3,750</span>
-                    <span className="route-price-discount">₦5,000</span>
-                  </div>
-                </div>
-                <div className="route-item">
-                  <div className="route-dot"></div>
-                  <div className="route-info">
-                    <div className="route-name">Ikeja → CMS / Marina</div>
-                    <div className="route-meta">~25 km · Departures every 45 mins</div>
-                  </div>
-                  <div className="route-price-wrap">
-                    <span className="route-price">₦3,375</span>
-                    <span className="route-price-discount">₦4,500</span>
-                  </div>
-                </div>
-              </div>
-              <div className="stats-row">
-                <div className="stat-box">
-                  <div className="stat-num">6</div>
-                  <div className="stat-label">Seats per ride</div>
-                </div>
-                <div className="stat-box">
-                  <div className="stat-num">AC</div>
-                  <div className="stat-label">Every vehicle</div>
-                </div>
-                <div className="stat-box">
-                  <div className="stat-num">0</div>
-                  <div className="stat-label">Surge pricing</div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="hero-right">
+  <div className="route-card">
+    <div className="live-badge"><div className="live-dot"></div> Pilot routes</div>
+    <div className="card-label">Available corridors · Waitlist price shown</div>
+    <div className="routes-list">
+
+      <div className="route-item">
+        <div className="route-dot"></div>
+        <div className="route-info">
+          <div className="route-name">Ikeja → Victoria Island</div>
+          <div className="route-meta">~30 km · Departures every 45 mins</div>
+          <div className="taxi-compare">Taxis charge est. ₦13,000–₦15,000 on this route. They don't guarantee A/C. Pair does.</div>
+        </div>
+        <div className="route-price-wrap">
+          <span className="route-price">₦4,050</span>
+          <span className="route-price-discount">₦5,400</span>
+        </div>
+      </div>
+
+      <div className="route-item">
+        <div className="route-dot"></div>
+        <div className="route-info">
+          <div className="route-name">Ajah → Victoria Island</div>
+          <div className="route-meta">~28 km · Departures every 45 mins</div>
+          <div className="taxi-compare">Taxis charge est. ₦13,000–₦15,000 on this route. They don't guarantee A/C. Pair does.</div>
+        </div>
+        <div className="route-price-wrap">
+          <span className="route-price">₦3,750</span>
+          <span className="route-price-discount">₦5,000</span>
+        </div>
+      </div>
+
+      <div className="route-item">
+        <div className="route-dot"></div>
+        <div className="route-info">
+          <div className="route-name">Ikeja → CMS / Marina</div>
+          <div className="route-meta">~25 km · Departures every 45 mins</div>
+          <div className="taxi-compare">Taxis charge est. ₦11,000–₦13,000 on this route. They don't guarantee A/C. Pair does.</div>
+        </div>
+        <div className="route-price-wrap">
+          <span className="route-price">₦3,375</span>
+          <span className="route-price-discount">₦4,500</span>
+        </div>
+      </div>
+
+      <div className="route-item">
+        <div className="route-dot"></div>
+        <div className="route-info">
+          <div className="route-name">Yaba → Lekki Phase 1</div>
+          <div className="route-meta">~20 km · Departures every 45 mins</div>
+          <div className="taxi-compare">Taxis charge est. ₦10,000 on this route. They don't guarantee A/C. Pair does.</div>
+        </div>
+        <div className="route-price-wrap">
+          <span className="route-price">₦2,500</span>
+          <span className="route-price-discount">₦3,000</span>
+        </div>
+      </div>
+
+      <div className="route-item">
+        <div className="route-dot"></div>
+        <div className="route-info">
+          <div className="route-name">Surulere → Lekki Phase 1</div>
+          <div className="route-meta">~22 km · Departures every 45 mins</div>
+          <div className="taxi-compare">Taxis charge est. ₦10,500 on this route. They don't guarantee A/C. Pair does.</div>
+        </div>
+        <div className="route-price-wrap">
+          <span className="route-price">₦2,800</span>
+          <span className="route-price-discount">₦3,500</span>
+        </div>
+      </div>
+
+    </div>
+    <div className="taxi-note">Waitlist price shown · Standard fare applies after first 6 trips · Taxi estimates based on typical peak-hour fares</div>
+    <div className="stats-row">
+      <div className="stat-box">
+        <div className="stat-num">6</div>
+        <div className="stat-label">Seats per ride</div>
+      </div>
+      <div className="stat-box">
+        <div className="stat-num">AC</div>
+        <div className="stat-label">Every vehicle</div>
+      </div>
+      <div className="stat-box">
+        <div className="stat-num">0</div>
+        <div className="stat-label">Surge pricing</div>
+      </div>
+    </div>
+  </div>
+</div>
         </section>
 
         {/* HOW IT WORKS */}
@@ -801,7 +838,7 @@ const handleFinalSignup = async () => {
 
         {/* FINAL CTA */}
         <section className="final-cta">
-          <div className="final-offer">🎁 25% off your first 3 trips — waitlist only</div>
+          <div className="final-offer">🎁 25% off your first 6 trips — waitlist only</div>
           <h2>Ready to commute differently?</h2>
           <p>Join Lagosians already on the waitlist. Claim your discount before launch.</p>
           <div className="final-form">
@@ -831,13 +868,13 @@ const handleFinalSignup = async () => {
             <p>Check your inbox — a confirmation is on its way. Your 25% discount is locked in from today.</p>
 
             <div className="modal-offer">
-              <div className="modal-offer-headline">25% off × 3 trips</div>
+              <div className="modal-offer-headline">25% off × 6 trips</div>
               <div className="modal-offer-sub">Applied automatically on your first three rides</div>
             </div>
 
             <div className="position-badge">
               <div className="position-label">Your waitlist position</div>
-              <div>#{waitlistCount.toLocaleString()}</div>
+              <div>#49{waitlistCount.toLocaleString()}</div>
             </div>
 
             <p className="share-nudge">Move up the list — share with friends who commute on your route:</p>
@@ -851,6 +888,38 @@ const handleFinalSignup = async () => {
         </div>
 
         <style jsx>{`
+
+
+
+/* Taxi comparison text styles */
+:global(.taxi-compare) {
+  font-size: 11px;
+  color: var(--accent);
+  margin-top: 6px;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
+:global(.taxi-note) {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+  margin: 16px 0 20px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  line-height: 1.4;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  :global(.taxi-compare) {
+    font-size: 10px;
+  }
+  
+  :global(.taxi-note) {
+    font-size: 9px;
+  }
+}
 /* Countdown Timer - EXACT DESIGN WITH BACKGROUNDS */
 :global(.countdown-strip) {
   background: transparent;
