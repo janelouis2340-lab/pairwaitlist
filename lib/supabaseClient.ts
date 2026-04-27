@@ -19,3 +19,5 @@ export type WaitlistEntry = {
   waitlist_position: number
   created_at: string
 }
+
+

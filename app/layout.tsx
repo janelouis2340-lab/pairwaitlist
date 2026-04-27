@@ -1,6 +1,7 @@
 // app/layout.tsx
 import type { Metadata, Viewport } from 'next';
 import { Syne, DM_Sans } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 
 // Configure Syne font
@@ -38,7 +39,6 @@ export const viewport: Viewport = {
   initialScale: 1,
   themeColor: '#1a5c3a',
 };
-
 export default function RootLayout({
   children,
 }: {
@@ -46,6 +46,30 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${syne.variable} ${dmSans.variable}`} suppressHydrationWarning>
+      <head>
+        {/* 
+          2. USE THE SCRIPT COMPONENT - This is safe and will be executed correctly.
+          The strategy="afterInteractive" is a good default for chat widgets.
+        */}
+        <Script
+          id="livechat-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.__lc = window.__lc || {};
+              window.__lc.license = 19612539;
+              window.__lc.integration_name = "manual_channels";
+              window.__lc.product_name = "livechat";
+            `,
+          }}
+        />
+        <Script
+          id="livechat-tracking"
+          strategy="afterInteractive"
+          src="https://cdn.livechatinc.com/tracking.js"
+          async
+        />
+      </head>
       <body suppressHydrationWarning>{children}</body>
     </html>
   );
